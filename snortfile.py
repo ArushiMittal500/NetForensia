@@ -1,3 +1,5 @@
+import pyshark
+
 try:
 	from scapy.all import *
 except ImportError:
@@ -15,15 +17,23 @@ import getopt
 import sys
 
 def usage():
-	print ("----\/---- Packet2Snort ----\/----")
+	print ("----\/---- Wireshark_To_Snort ----\/----")
 	print ("\nThis script parses a network packet from a PCAP file into a useable Snort rule for incident response, threat hunting and detection.")
 	print ("\nRequirements: \n- Scapy \n- Scapy-HTTP \n- Python 2.7")
-	print ("\nUsage:\npacket2snort.py <options>\n")
+	print ("\nUsage:\nsnortfile.py <options>\n")
 	print ("Arguments: \n")
+	print("-c <Interface_name> input Interface name to capture packets")
 	print ("-r <pcap> input pcap file")
 	print ("-p <packetnr> input packet number in pcap")
 	print ("-s to output snort rule from single packet")
 	sys.exit(0)
+
+def wireshark(iface_name):
+	filter_string = 'port 443'
+	capt = pyshark.LiveCapture(interface=iface_name, bpf_filter=filter_string, output_file="capturepackets.pcap")
+	capt.sniff(packet_count=5)
+	
+	print("Captured Successfully")
 
 #converts layer 3 and 4 protocols into rules:
 # IP, TCP, UDP & ICMP
@@ -138,15 +148,20 @@ def main():
 		cap = None
 		packetnr = None
 		protocol = None
+		capture = None
 		snortoutput = False
-		options, arguments = getopt.getopt(sys.argv[1:], "r:p:P:sh")
+		
+		options, arguments = getopt.getopt(sys.argv[1:], "c:r:p:P:sh")
 
 #Check if argument is given and fill variables with arguments
 		if len(sys.argv) == 1:
 			usage()
 
 		for opt, args in options:
-			if opt in ('-r'):
+			
+			if opt in ('-c'):
+				capture = args
+			elif opt in ('-r'):
 				cap = args
 			elif opt in ('-p'):
 				packetnr = args.split(',')
@@ -165,6 +180,10 @@ def main():
 			else:
 				print ("Error:", cap, "doest not exist.")
 				sys.exit(1)
+		else:
+			wireshark(capture)
+			scapy_cap = rdpcap("capturepackets.pcap")
+			
 		
 #Output summary of pcap
 		print (O + "--------")
@@ -181,6 +200,14 @@ def main():
 # If the -s paramater is not give, just output the details of the packet selected.
 				else:
 					print( str(singlepacket.show()))
+		elif capture != None:
+			print("Your Captured Packets are stored in capturepackets.pcap file")
+			countpacket = 1
+			for packet in scapy_cap:
+# Print a summary of each packet in the pcap, together with a packetnumber				
+				print( str(countpacket), packet.summary())
+# Add a count to the packetnumber				
+				countpacket = countpacket + 1
 # Check if the pcap file is given
 		elif cap != None:
 			countpacket = 1
@@ -191,7 +218,7 @@ def main():
 				countpacket = countpacket + 1
 # When no argument is give, return the useage function		
 		else:
-			useage()
+			usage()
 # Print out the error, if received
 	except Exception as e:
 		print ("Error: ", e)
