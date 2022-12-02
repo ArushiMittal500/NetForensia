@@ -29,7 +29,8 @@ This python script automatically generates:
     
       => python snortfile.py -r capturepackets.pcap -p 2
       
-    3.
+    3.use the -s switch to generate snort rules from this packet.
+      => python snortfile.py -r packets.pcap -p 1 -s
     
    
 
