@@ -23,11 +23,11 @@ This python script automatically generates:
     
     1.the script automatically outputs packets 
           
-      =>python snortfile.py -r packets.pcap
+      =>python snortfile.py -r capturepackets.pcap
       
     2.Use of -p with the correct packet number to display the packet.
     
-      => python snortfile.py -r packets.pcap -p 2
+      => python snortfile.py -r capturepackets.pcap -p 2
       
     3.
     
