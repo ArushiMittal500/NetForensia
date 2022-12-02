@@ -19,7 +19,17 @@ This python script automatically generates:
     3.pyshark
     4.wireshark
     
+    b.Implementation  
     
+    1.the script automatically outputs packets 
+          
+      =>python snortfile.py -r packets.pcap
+      
+    2.Use of -p with the correct packet number to display the packet.
+    
+      => python snortfile.py -r packets.pcap -p 2
+      
+    3.
     
    
 
