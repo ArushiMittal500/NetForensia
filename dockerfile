@@ -1,9 +1,9 @@
-FROM python:latest
-ADD ./ app
+FROM python:3.6-alpine
+
+RUN apk update
+
 WORKDIR /app
-RUN apt-get update
+ADD . /app
 RUN pip install --upgrade pip
-RUN pip install scapy
-RUN pip install pyshark
-COPY snortfile.py ./
-CMD [ "python3" ,"./snortfile.py"]
+RUN pip install -r requirements.txt
+CMD ["python","snortfile.py","-r","packets.pcap"]
